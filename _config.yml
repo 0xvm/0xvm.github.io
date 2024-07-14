@@ -59,19 +59,22 @@ author:
   name   : "0乂ᐯ爪" #First Lastname"
   avatar : "/assets/images/bio-photo.jpg"
   bio    : "Abiding.. 👻"
-  links:
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://0xvm.github.io"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/0xvm"
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/0xvm"
-        #    - label: "Instagram"
-        #      icon: "fab fa-fw fa-instagram"
-        #      url: "https://instagram.com/"
+    #  links:
+    #    - label: "Website"
+    #      icon: "fas fa-fw fa-link"
+    #      url: "https://0xvm.github.io"
+    #    - label: "Twitter"
+    #      icon: "fab fa-fw fa-twitter-square"
+    #      url: "https://twitter.com/0xvm"
+    #    - label: "GitHub"
+    #      icon: "fab fa-fw fa-github"
+    #      url: "https://github.com/0xvm"
+    #    - label: "LinkedIn"
+    #      icon: "fab fa-fw fa-linkedin"
+    #      url: "https://www.linkedin.com/in/vmaritsas/"
+    #    - label: "Instagram"
+    #      icon: "fab fa-fw fa-instagram"
+    #      url: "https://instagram.com/"
 
 footer:
   links:
@@ -81,6 +84,9 @@ footer:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/0xvm"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/vmaritsas/"
         #    - label: "Instagram"
         #      icon: "fab fa-fw fa-instagram"
         #      url: "https://instagram.com/"
@@ -92,7 +98,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false #true
       read_time: true
       comments: true
       share: false 
