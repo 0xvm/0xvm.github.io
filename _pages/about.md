@@ -2,4 +2,4 @@
 permalink: /about/
 title: "About"
 ---
-A blog on the interwebz 🌊🏄
+`A blog on the interwebz 🌊🏄`
