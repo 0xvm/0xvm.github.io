@@ -100,7 +100,7 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: true
+      comments: false #true
       share: false 
       related: false #true
   # _pages
