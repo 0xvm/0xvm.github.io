@@ -98,7 +98,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: false #true
+      author_profile: true
       read_time: true
       comments: true
       share: false 
@@ -117,3 +117,10 @@ category_archive:
 tag_archive:
   type: liquid
   path: /tags/
+
+analytics:
+  provider: "google-gtag"
+  google:
+    tracking_id: "G-BT0FXC4DK6"
+    anonymize_ip: false # default
+
