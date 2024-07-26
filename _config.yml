@@ -117,6 +117,9 @@ category_archive:
 tag_archive:
   type: liquid
   path: /tags/
+interesting_reads:
+  type: liquid
+  path: /interesting-reads/
 
 analytics:
   provider: "google-gtag"
