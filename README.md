@@ -1,3 +1,3 @@
 ```
-A blog on the interwebz 🌊🏄
+A blog on the intertubes 🌊🏄
 ```
