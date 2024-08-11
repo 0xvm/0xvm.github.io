@@ -2569,4 +2569,5 @@ Running AFLplusplus should result in usable crash cases almost instantly. As in,
 <div id="afl"></div>
 <script>AsciinemaPlayer.create('/assets/cast/classroom.afl.cast', document.getElementById('afl'));</script>
 
-# EOF
+<p></p>
+`EOF`
