@@ -5,7 +5,9 @@ categories:
 tags:
   - pwn
   - AFL
-# classes: wide
+
+classes: wide
+
 excerpt: "Walkthrough of a pwnable using pwntools, pwndbg, AFL"
 toc: true
 toc_label: "Table of Contents"
@@ -1938,7 +1940,7 @@ Mapped address spaces:
             0x602000           0x603000     0x1000     0x2000  rwxp   /home/user/classroom   <---
 ```
 
-## hand crafting shellcode
+## Hand crafting shellcode
 
 We'll need to craft some shellcode that handles opening a file, reading it, and writing it's content to stdout. 
 
