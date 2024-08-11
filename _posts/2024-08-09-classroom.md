@@ -254,7 +254,7 @@ The disassembly of the specific line `read(0,&local_88,0x14c);` provides a bette
 
 Note: it is worth mentioning that ChatGPT correctly identifies the buffer overflow, although it fails to describe it correctly :p 
 
-![[0xvm-classroom-gpt.png]]
+![gpt](/assets/images/0xvm-classroom-gpt.png)
 
 # Dynamic Analysis
 
@@ -522,7 +522,7 @@ What we also have is the `ans` buffer identified earlier, that holds the input p
 
 Looking further into `ans` with `ghidra`, we observe that `ans` is referenced in two locations in the program, in the function `main()` and the function `kids_are_not_allowed_here()`
 
-![[0xvm-classroom-ghidra.png]]
+![ghidra](/assets/images/0xvm-classroom-ghidra.png)
 
 What is even more interesting is a `CALL` instruction at `0x40094b` to the `RDX` register that points to the `ans` buffer.
 
