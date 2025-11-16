@@ -133,9 +133,6 @@ Running the executable with no arguments simply creates a client-accessible snap
 * `--xor-seed <seed>` enables an LCG-based XOR stream while the ZIP is being written (no second pass is needed anymore). An LCG-based XOR stream is used since minizip does not implement compression, hence a simple XOR would actually have your key in any `\x00\x00\x00\x00` series of bytes in the resulting blob.
 * `--post <url>` (HTTP/HTTPS) uploads the resulting archive directly from memory via a Chrome-like multipart/form-data POST (always to `/upload`); POST is customized for this server: [https://pypi.org/project/uploadserver/](https://pypi.org/project/uploadserver/) ; HTTPS certificates are not validated on purpose and no local ZIP is touching disk.
 
-**Warning:** HTTPS certificates are not validated on purpose, and the ZIP never touches disk locally. Use this only in lab / controlled environments.
-{: .notice--danger}
-
 ## Building
 
 Run `compile_vss_client.bat` from a Visual Studio Developer Command Prompt to produce `vss_client.exe` (the script now builds a size-oriented `/MD` release with LTCG, identical-code folding, and RTTI disabled by default). Pass `static` as the first argument to either `compile_vss_client.bat` or `compile_mount_vss.bat` if you need a static MSVC runtime build (`/MT`). Static builds are emitted as `vss_client-static.exe` and `mount_vss-static.exe`.
