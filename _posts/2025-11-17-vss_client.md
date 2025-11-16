@@ -6,7 +6,14 @@ tags:
   - windows
   - samdump
   - exfiltrate
-classes: wide                            
+
+classes: wide
+
+exceprt: "SAMDump and c'ya"
+toc: true
+toc_label: "Table of Contents"
+toc_icon: "cog"
+toc_sticky: true
 ---
 
 ## TL;DR
