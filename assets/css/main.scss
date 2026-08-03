@@ -327,7 +327,7 @@ h6,
 .ghost-hero__jp {
   margin: clamp(2rem, 5vw, 3.8rem) 0 0;
   font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
-  font-size: clamp(3.3rem, 9vw, 8.5rem);
+  font-size: clamp(2rem, 5vw, 4.8rem);
   font-weight: 900;
   line-height: 0.9;
   letter-spacing: -0.08em;
@@ -363,9 +363,21 @@ h6,
   background: var(--ghost-ink);
 }
 
-.ghost-button--solid:hover {
+.ghost-button--solid,
+.ghost-button--solid:visited {
+  color: var(--ghost-paper);
+  background: var(--ghost-ink);
+}
+
+.ghost-button--solid:hover,
+.ghost-button--solid:focus-visible {
   color: var(--ghost-ink);
-  background: transparent;
+  background: var(--ghost-paper);
+}
+
+.ghost-button--solid:active {
+  color: var(--ghost-paper);
+  background: var(--ghost-ink);
 }
 
 .ghost-shell-mark {
@@ -1058,7 +1070,7 @@ code {
   }
 
   .ghost-hero__jp {
-    font-size: clamp(2.5rem, 16vw, 4.6rem);
+    font-size: clamp(1.8rem, 10vw, 3rem);
   }
 
   .ghost-hero__subtitle {
