@@ -1,0 +1,30 @@
+/* ==========================================================================
+   0xVM Ghost Shell skin
+   ========================================================================== */
+
+$background-color: #0d0e0f !default;
+$text-color: #ecece7 !default;
+$muted-text-color: #a8aaa5 !default;
+$primary-color: #ecece7 !default;
+$border-color: rgba(#ecece7, 0.48) !default;
+$code-background-color: #080909 !default;
+$code-background-color-dark: #050606 !default;
+$form-background-color: #141516 !default;
+$footer-background-color: #0d0e0f !default;
+$link-color: #f3f3ed !default;
+$link-color-hover: #ffffff !default;
+$link-color-visited: #cecec8 !default;
+$masthead-link-color: #ecece7 !default;
+$masthead-link-color-hover: #ffffff !default;
+$navicon-link-color-hover: #ffffff !default;
+
+.author__urls.social-icons i,
+.author__urls.social-icons .svg-inline--fa,
+.page__footer-follow .social-icons i,
+.page__footer-follow .social-icons .svg-inline--fa {
+  color: inherit;
+}
+
+.ais-search-box .ais-search-box--input {
+  background-color: $form-background-color;
+}
