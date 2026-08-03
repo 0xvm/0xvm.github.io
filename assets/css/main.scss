@@ -303,7 +303,7 @@ h6,
   max-width: 900px;
   color: var(--ghost-ink);
   font-family: var(--ghost-display);
-  font-size: clamp(3.25rem, 7.8vw, 7.5rem);
+  font-size: clamp(2.75rem, 6vw, 5.4rem);
   font-weight: 600;
   line-height: 0.92;
   letter-spacing: -0.055em;
@@ -413,7 +413,7 @@ h6,
   justify-content: space-between;
   border-bottom: 1px solid var(--ghost-line);
   font-family: var(--ghost-display);
-  font-size: 0.5rem;
+  font-size: 0.65rem;
   letter-spacing: 0.14em;
 }
 
@@ -707,7 +707,7 @@ h6,
   padding: clamp(2rem, 5vw, 4.5rem) 0;
   border-block: 1px solid var(--ghost-line);
   color: var(--ghost-ink);
-  font-size: clamp(2.5rem, 7vw, 6.8rem);
+  font-size: clamp(2.1rem, 5vw, 4.6rem);
   font-weight: 600;
   line-height: 0.96;
   letter-spacing: -0.055em;
@@ -770,7 +770,7 @@ h6,
   margin-top: 6rem;
   padding-top: 1rem;
   border-top: 1px solid var(--ghost-line);
-  font-size: clamp(2.1rem, 5vw, 4.4rem);
+  font-size: clamp(1.7rem, 3.5vw, 3rem);
 }
 
 .page__content h2 {
@@ -1070,7 +1070,7 @@ code {
   }
 
   .ghost-hero__title {
-    font-size: clamp(2.8rem, 15vw, 4.8rem);
+    font-size: clamp(2.45rem, 12vw, 3.8rem);
   }
 
   .ghost-hero__jp {
@@ -1130,7 +1130,7 @@ code {
 
   .page__title,
   .archive__title {
-    font-size: clamp(2.4rem, 13vw, 4.7rem);
+    font-size: clamp(2rem, 10vw, 3.6rem);
   }
 
   .page__content {
