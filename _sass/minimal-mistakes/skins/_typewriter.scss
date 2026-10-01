@@ -1,0 +1,43 @@
+/* 0xvm: paper, ink, and a typewriter. */
+$mono: "IBM Plex Mono", "Courier New", monospace;
+$sans-serif: $mono;
+$sans-serif-narrow: $mono;
+$monospace: $mono;
+$global-font-family: $mono;
+$header-font-family: $mono;
+$caption-font-family: $mono;
+$code-font-family: $mono;
+$intro-transition: none;
+$background-color: #fdfcf9;
+$text-color: #202020;
+$muted-text-color: #62615d;
+$primary-color: #202020;
+$border-color: #deddd7;
+$code-background-color: #f2f1ed;
+$code-background-color-dark: #f2f1ed;
+$form-background-color: #f2f1ed;
+$footer-background-color: #fdfcf9;
+$link-color: #202020;
+$link-color-hover: #000;
+$link-color-visited: #202020;
+$masthead-link-color: #202020;
+$masthead-link-color-hover: #000;
+$navicon-link-color-hover: #62615d;
+
+/* Base16 light colors also cover less common Rouge token classes. */
+$base00: #f2f1ed;
+$base01: #e6e5df;
+$base02: #deddd7;
+$base03: #62615d;
+$base04: #62615d;
+$base05: #202020;
+$base06: #202020;
+$base07: #202020;
+$base08: #9a3030;
+$base09: #805126;
+$base0a: #805126;
+$base0b: #346346;
+$base0c: #285b79;
+$base0d: #285b79;
+$base0e: #684078;
+$base0f: #9a3030;

@@ -3,112 +3,31 @@ layout: default
 author_profile: false
 ---
 
-{% assign ghost_posts = paginator.posts | default: site.posts %}
+{% assign recent_posts = paginator.posts | default: site.posts %}
 
-<main class="ghost-home">
-  <section class="ghost-hero ghost-shell" aria-labelledby="ghost-title">
-    <div class="ghost-hero__main">
-      <div class="ghost-shell-mark" aria-hidden="true"><span></span></div>
-      <p class="ghost-eyebrow">0xVM / OFFENSIVE SECURITY FIELD NOTES</p>
-      <h1 id="ghost-title" class="ghost-hero__title">
-        SYSTEMS <span>SECURITY</span>
-      </h1>
-      <p class="ghost-hero__subtitle">MAN — MACHINE — ATTACK SURFACE</p>
-      <div class="ghost-hero__jp" lang="ja" aria-label="Security research">セキュリティ研究</div>
-      <div class="ghost-hero__actions">
-        <a class="ghost-button ghost-button--solid" href="#field-notes">ENTER FIELD NOTES <span aria-hidden="true">↘</span></a>
-        <a class="ghost-button" href="{{ '/about/' | relative_url }}">ABOUT</a>
-      </div>
-    </div>
+<main class="notebook" id="main">
+  <header class="notebook__intro">
+    <h1>0xvm</h1>
+    <p>Notes on vulnerability research, exploit development,<br class="notebook__break"> and offensive security.</p>
+  </header>
 
-    <aside class="ghost-dossier" aria-label="Publication manifest">
-      <div class="ghost-dossier__heading">
-        <span>PUBLICATION MANIFEST</span>
-        <span>{{ site.ghost_shell.issue }} / {{ 'now' | date: "%Y" }}</span>
-      </div>
-      <div class="ghost-dossier__body">
-        <p class="ghost-dossier__jp" lang="ja">
-          標準解を避ける。<br>
-          機械の内側を読む。<br>
-          痕跡から構造へ。
-        </p>
-        <dl class="ghost-credits">
-          <div><dt>PRIMARY SIGNAL</dt><dd>{{ site.ghost_shell.primary_signal }}</dd></div>
-          <div><dt>ATTACK MODE</dt><dd>{{ site.ghost_shell.attack_mode }}</dd></div>
-          <div><dt>TOOLCHAIN</dt><dd>{{ site.ghost_shell.toolchain }}</dd></div>
-          <div><dt>OPERATOR</dt><dd>0乂ᐯ爪</dd></div>
-        </dl>
-      </div>
-      <p class="ghost-dossier__quote">{{ site.author.bio }}</p>
-    </aside>
-  </section>
-
-  <section id="field-notes" class="ghost-index ghost-shell" aria-labelledby="field-notes-title">
-    <header class="ghost-section-heading">
-      <div>
-        <p class="ghost-eyebrow">TRANSMISSIONS / RESEARCH LOG</p>
-        <h2 id="field-notes-title">RECENT FIELD NOTES</h2>
-      </div>
-      <p>{{ site.posts | size }} RECORDS / ORDERED BY LAST SIGNAL</p>
-    </header>
-
-    <div class="ghost-post-index">
-      {% for post in ghost_posts %}
-        <article class="ghost-post-row{% if forloop.first %} ghost-post-row--featured{% endif %}">
-          <div class="ghost-post-row__number" aria-hidden="true">0{{ forloop.index }}</div>
-          <div class="ghost-post-row__content">
-            <div class="ghost-post-row__meta">
-              <span>{{ post.date | date: "%Y.%m.%d" }} / FIELD NOTE</span>
-              <span>{% if post.tags %}{{ post.tags | join: " / " | upcase }}{% else %}UNTAGGED{% endif %}</span>
-            </div>
-            <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
-            <div class="ghost-post-row__excerpt">{{ post.excerpt | markdownify | strip_html | truncate: 220 }}</div>
-          </div>
-          <a class="ghost-post-row__arrow" href="{{ post.url | relative_url }}" aria-label="Read {{ post.title }}">↗</a>
-        </article>
+  <section aria-labelledby="notes-title">
+    <h2 class="notebook__label" id="notes-title">Recent writing</h2>
+    <ul class="notebook__posts">
+      {% for post in recent_posts %}
+        <li>
+          <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+          <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </li>
       {% endfor %}
-    </div>
-
+    </ul>
     {% if paginator.total_pages > 1 %}
-      <nav class="ghost-pagination" aria-label="Pagination">
-        {% if paginator.previous_page %}<a href="{{ paginator.previous_page_path | relative_url }}">← NEWER SIGNALS</a>{% else %}<span></span>{% endif %}
+      <nav class="notebook__pagination" aria-label="Pagination">
+        {% if paginator.previous_page %}<a href="{{ paginator.previous_page_path | relative_url }}">← Newer</a>{% else %}<span></span>{% endif %}
         <span>{{ paginator.page }} / {{ paginator.total_pages }}</span>
-        {% if paginator.next_page %}<a href="{{ paginator.next_page_path | relative_url }}">OLDER SIGNALS →</a>{% endif %}
+        {% if paginator.next_page %}<a href="{{ paginator.next_page_path | relative_url }}">Older →</a>{% else %}<span></span>{% endif %}
       </nav>
     {% endif %}
-  </section>
-
-  <section class="ghost-taxonomy ghost-shell" aria-labelledby="signal-classes-title">
-    <div>
-      <p class="ghost-eyebrow">INDEX / SUBJECT MATRIX</p>
-      <h2 id="signal-classes-title">SIGNAL CLASSES</h2>
-    </div>
-    <div class="ghost-tag-matrix">
-      {% assign ghost_tags = site.tags | sort %}
-      {% for tag in ghost_tags %}
-        {% assign tag_name = tag[0] %}
-        {% assign tag_posts = tag[1] %}
-        {% assign tag_anchor = tag_name | slugify %}
-        <a href="{{ '/tags/#' | append: tag_anchor | relative_url }}">
-          <span>{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
-          <strong>{{ tag_name | replace: '-', ' ' | upcase }}</strong>
-          <span>{{ tag_posts | size }}</span>
-        </a>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section class="ghost-operator ghost-shell" aria-labelledby="operator-title">
-    <div class="ghost-operator__label" aria-hidden="true">0乂ᐯ爪</div>
-    <div class="ghost-operator__copy">
-      <p class="ghost-eyebrow">PROFILE</p>
-      <h2 id="operator-title">SECURITY RESEARCH.</h2>
-      <p>Writing and research on vulnerability analysis, exploit development, and offensive security.</p>
-      <nav class="ghost-operator__links" aria-label="Social links">
-        <a href="https://github.com/{{ site.github_username }}">GITHUB ↗</a>
-        <a href="https://twitter.com/{{ site.twitter_username }}">X / TWITTER ↗</a>
-        <a href="https://www.linkedin.com/in/vmaritsas/">LINKEDIN ↗</a>
-      </nav>
-    </div>
+    <p class="notebook__all"><a href="{{ '/posts/' | relative_url }}">All posts →</a></p>
   </section>
 </main>

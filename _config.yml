@@ -13,24 +13,14 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: 0乂ᐯ爪 
+title: 0xvm
 email: 
 description: >- # this means to ignore newlines until "baseurl:"
   0xvm Cybersecurity Blog
 twitter_username: 0xvm
 github_username: 0xvm
-minimal_mistakes_skin: ghost-shell
+minimal_mistakes_skin: typewriter
 search: true
-
-# Editorial content used by the Ghost Shell homepage. Keeping these values here
-# lets the presentation stay current without editing its Liquid template.
-ghost_shell:
-  issue: "ISSUE 01"
-  primary_signal: "BINARY RESEARCH"
-  attack_mode: "ADVERSARY SIMULATION"
-  toolchain: "GHIDRA / PWNDBG / AFL"
-  operator_profile: "FFFF0800`00000000"
-  operator_intro: "Notes from the boundary between software and intent: vulnerability research, exploit development, offensive security, and whatever happens when the standard answer is not interesting enough."
 
 # Build settings
 markdown: kramdown
